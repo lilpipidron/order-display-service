@@ -14,7 +14,7 @@ type Storage struct {
 	DB *sql.DB
 }
 
-func New(psqlInfo, dbname string) (*Storage, error) {
+func NewPostgresDB(psqlInfo, dbname string) (*Storage, error) {
 	const errFunc = "storage.postgresql.NewStorage"
 
 	db, err := sql.Open("postgres", psqlInfo)

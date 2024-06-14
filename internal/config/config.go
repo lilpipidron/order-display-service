@@ -59,7 +59,7 @@ func retrievePostgresConfig(config *Config) {
 
 	port, err := strconv.Atoi(os.Getenv("POSTGRES_PORT"))
 	if err != nil {
-		log.Fatal("failed to parse POSTGRES_PORT: " + err.Error())
+		log.Fatal("failed to parse POSTGRES_PORT: ", "err", err)
 	}
 	postgres.Port = port
 	config.Postgres = postgres
@@ -68,7 +68,7 @@ func retrievePostgresConfig(config *Config) {
 func MustLoad() *Config {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("failed to load .env file: " + err.Error())
+		log.Fatal("failed to load .env file: ", "err", err)
 	}
 
 	configPath := os.Getenv("CONFIG_PATH")
@@ -77,14 +77,14 @@ func MustLoad() *Config {
 	}
 
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		log.Fatal("config file not found: " + configPath)
+		log.Fatal("config file not found: "+configPath, "err", err)
 	}
 
 	var config Config
 
 	err = cleanenv.ReadConfig(configPath, &config)
 	if err != nil {
-		log.Fatal("failed to read config: " + err.Error())
+		log.Fatal("failed to read config: ", "err", err)
 	}
 
 	retrievePostgresConfig(&config)

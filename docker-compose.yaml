@@ -11,7 +11,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_DB=wildberries
 
-  nats:
+  nats-streaming:
     image: nats-streaming:latest
     container_name: nats-streaming
     ports:
@@ -23,3 +23,5 @@ services:
     image: redis:latest
     ports:
       - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=redis
