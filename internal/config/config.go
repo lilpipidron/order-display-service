@@ -12,6 +12,7 @@ type Config struct {
 	HTTPServer `yaml:"http_server"`
 	Postgres
 	NatsStreamingConfig
+	Redis
 }
 
 type HTTPServer struct {
@@ -29,6 +30,24 @@ type Postgres struct {
 	DBName   string
 	Host     string
 	Port     int
+}
+
+type Redis struct {
+	Host     string
+	Port     int
+	Password string
+}
+
+func retrieveRedisConfig(config *Config) {
+	var redis Redis
+	redis.Host = os.Getenv("REDIS_HOST")
+	port, err := strconv.Atoi(os.Getenv("REDIS_PORT"))
+	if err != nil {
+		log.Fatal("failed to parse REDIS_PORT: " + err.Error())
+	}
+	redis.Port = port
+	redis.Password = os.Getenv("REDIS_PASSWORD")
+	config.Redis = redis
 }
 
 func retrievePostgresConfig(config *Config) {
@@ -69,6 +88,7 @@ func MustLoad() *Config {
 	}
 
 	retrievePostgresConfig(&config)
+	retrieveRedisConfig(&config)
 
 	return &config
 }
