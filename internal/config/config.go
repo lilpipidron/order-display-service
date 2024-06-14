@@ -11,10 +11,16 @@ import (
 type Config struct {
 	HTTPServer `yaml:"http_server"`
 	Postgres
+	NatsStreamingConfig
 }
 
 type HTTPServer struct {
-	Address string `yaml:"address" default:"0.0.0.0:8080"`
+	Address string `yaml:"address" default:"localhost:8080"`
+}
+
+type NatsStreamingConfig struct {
+	ClientAddress string `yaml:"client_address" default:"localhost:4222"`
+	HttpAddress   string `yaml:"http_address" default:"localhost:4223"`
 }
 
 type Postgres struct {

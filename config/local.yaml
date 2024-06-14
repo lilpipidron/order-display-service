@@ -1,2 +1,6 @@
 http_server:
   address: "localhost:8080"
+
+nats_streaming:
+  client_address: "localhost:4222"
+  http_address: "localhost:8222"
