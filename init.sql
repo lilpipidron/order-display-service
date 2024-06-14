@@ -1,0 +1,1 @@
+create database wildberries owner postgres;
