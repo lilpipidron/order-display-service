@@ -10,3 +10,10 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_DB=wildberries
+
+  nats:
+    image: nats-streaming:latest
+    container_name: nats-streaming
+    ports:
+      - "4222:4222"
+      - "8222:8222"
