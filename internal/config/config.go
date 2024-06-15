@@ -11,7 +11,7 @@ import (
 type Config struct {
 	HTTPServer `yaml:"http_server"`
 	Postgres
-	NatsStreamingConfig
+	NatsStreamingConfig `yaml:"nats_streaming"`
 	Redis
 }
 
