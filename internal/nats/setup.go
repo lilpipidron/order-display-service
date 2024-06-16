@@ -1,6 +1,7 @@
 package nats
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/charmbracelet/log"
@@ -11,8 +12,10 @@ import (
 )
 
 func acceptMessage(msg *nats.Msg, orderRepo order.Repository) {
+	dec := json.NewDecoder(bytes.NewReader(msg.Data))
+	dec.DisallowUnknownFields()
 	var order models.Order
-	err := json.Unmarshal(msg.Data, &order)
+	err := dec.Decode(&order)
 	if err != nil {
 		log.Printf("error unmarshalling message: %v", err)
 		return
