@@ -14,4 +14,7 @@ type Order struct {
 	SmID              int       `json:"sm_id"`
 	DateCreated       time.Time `json:"date_created"`
 	OofShard          string    `json:"oof_shard"`
+	Delivery          `json:"delivery"`
+	Items             []Item  `json:"items"`
+	Payment           Payment `json:"payment"`
 }
