@@ -15,8 +15,7 @@ CREATE TABLE orders
 
 CREATE TABLE deliveries
 (
-    delivery_id SERIAL PRIMARY KEY,
-    order_uid   VARCHAR REFERENCES orders (order_uid),
+    order_uid   VARCHAR REFERENCES orders (order_uid) UNIQUE,
     name        VARCHAR,
     phone       VARCHAR,
     zip         VARCHAR,
@@ -28,7 +27,6 @@ CREATE TABLE deliveries
 
 CREATE TABLE items
 (
-    item_id      SERIAL PRIMARY KEY,
     chrt_id      INTEGER,
     track_number VARCHAR REFERENCES orders (track_number),
     price        NUMERIC,
@@ -37,14 +35,13 @@ CREATE TABLE items
     sale         NUMERIC,
     size         VARCHAR,
     total_price  NUMERIC,
-    nm_id        INTEGER UNIQUE,
+    nm_id        INTEGER,
     brand        VARCHAR,
     status       INTEGER
 );
 
 CREATE TABLE payments
 (
-    payment_id    SERIAL PRIMARY KEY,
     order_uid     VARCHAR REFERENCES orders (order_uid),
     request_id    VARCHAR,
     currency      VARCHAR,

@@ -6,6 +6,7 @@ import (
 	"github.com/lilpipidron/order-desplay-service/internal/config"
 	ns "github.com/lilpipidron/order-desplay-service/internal/nats"
 	"github.com/lilpipidron/order-desplay-service/internal/storage/postgresql"
+	"github.com/lilpipidron/order-desplay-service/internal/storage/postgresql/order"
 	"github.com/nats-io/nats.go"
 	"net/http"
 )
@@ -17,12 +18,14 @@ func main() {
 		"password=%s dbname=%s sslmode=disable",
 		cfg.Postgres.Host, cfg.Postgres.Port, cfg.Postgres.User, cfg.Postgres.Password, cfg.Postgres.DBName)
 
-	_, err := postgresql.NewPostgresDB(psqlInfo, cfg.DBName)
+	storage, err := postgresql.NewPostgresDB(psqlInfo, cfg.DBName)
 	if err != nil {
 		log.Fatal("failed to init storage: ", "err", err)
 	}
 
-	nc := ns.Setup(cfg)
+	orderRepo := order.NewRepository(storage.DB)
+
+	nc := ns.Setup(cfg, orderRepo)
 
 	defer func(nc *nats.Conn) {
 		err := nc.Drain()
