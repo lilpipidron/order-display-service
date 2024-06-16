@@ -2,6 +2,7 @@ package order
 
 import (
 	"database/sql"
+	"github.com/charmbracelet/log"
 	"github.com/lilpipidron/order-desplay-service/internal/models"
 )
 
@@ -93,5 +94,85 @@ func (repo *OrderRepository) AddOrder(order models.Order) error {
 }
 
 func (repo *OrderRepository) GetOrders() ([]models.Order, error) {
-	return nil, nil
+	var orders []models.Order
+	query := "SELECT * from orders"
+	row, err := repo.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Error("failed to close rows: ", "error", err)
+		}
+	}(row)
+
+	for row.Next() {
+		var uid string
+		o := &models.Order{}
+		err = row.Scan(&o.OrderUID, o.TrackNumber, &o.Entry, &o.Locale, &o.InternalSignature,
+			&o.CustomerID, &o.DeliveryService, &o.Shardkey, &o.SmID, &o.DateCreated, &o.OofShard)
+		if err != nil {
+			return nil, err
+		}
+
+		query = "SELECT * from deliveries WHERE order_uid = $1"
+		deliveryRow, err := repo.db.Query(query, o.OrderUID)
+		if err != nil {
+			return nil, err
+		}
+		deliveryRow.Next()
+		err = row.Scan(&uid, &o.Delivery.Name, &o.Delivery.Phone, &o.Delivery.Zip,
+			&o.Delivery.City, &o.Delivery.Address, &o.Delivery.Region, &o.Delivery.Email)
+		if err != nil {
+			return nil, err
+		}
+		err = deliveryRow.Close()
+		if err != nil {
+			return nil, err
+		}
+
+		query = "SELECT * from payments WHERE order_uid = $1"
+		paymentRow, err := repo.db.Query(query, o.OrderUID)
+		if err != nil {
+			return nil, err
+		}
+		paymentRow.Next()
+		err = paymentRow.Scan(&uid, &o.Payment.RequestID, &o.Payment.Currency,
+			&o.Payment.Provider, &o.Payment.Amount, &o.Payment.PaymentDt,
+			&o.Payment.Bank, &o.Payment.DeliveryCost, &o.Payment.GoodsTotal,
+			&o.Payment.CustomFee, &o.Payment.Transaction)
+		if err != nil {
+			return nil, err
+		}
+		err = paymentRow.Close()
+		if err != nil {
+			return nil, err
+		}
+
+		query = "SELECT * from items WHERE track_number = $1"
+		itemRow, err := repo.db.Query(query, o.TrackNumber)
+		if err != nil {
+			return nil, err
+		}
+
+		var items []models.Item
+		for itemRow.Next() {
+			item := &models.Item{}
+			err := itemRow.Scan(&item.ChrtID, &item.TrackNumber,
+				&item.Price, &item.Rid, &item.Name, &item.Sale, &item.Size,
+				&item.TotalPrice, &item.NmID, &item.Brand, &item.Status)
+			if err != nil {
+				return nil, err
+			}
+			items = append(items, *item)
+		}
+		err = itemRow.Close()
+		if err != nil {
+			return nil, err
+		}
+		o.Items = items
+		orders = append(orders, *o)
+	}
+	return orders, nil
 }
