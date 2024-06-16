@@ -7,9 +7,6 @@ import (
 
 type Repository interface {
 	AddOrder(order models.Order) error
-	AddItems(order models.Order) error
-	AddPayment(order models.Order) error
-	AddDelivery(order models.Order) error
 	GetOrders() ([]models.Order, error)
 }
 
@@ -42,21 +39,8 @@ func (repo *OrderRepository) AddOrder(order models.Order) error {
 		return err
 	}
 
-	if err = tx.Commit(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (repo *OrderRepository) AddItems(order models.Order) error {
-	tx, err := repo.db.Begin()
-	if err != nil {
-		return err
-	}
-
 	for _, item := range order.Items {
-		query := "INSERT INTO items (chrt_id, track_number, price, rid, name, sale," +
+		query = "INSERT INTO items (chrt_id, track_number, price, rid, name, sale," +
 			"size, total_price, nm_id, brand, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)"
 
 		_, err = tx.Exec(query, item.ChrtID, item.TrackNumber, item.Price, item.Rid, item.Name,
@@ -71,20 +55,7 @@ func (repo *OrderRepository) AddItems(order models.Order) error {
 		}
 	}
 
-	if err = tx.Commit(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (repo *OrderRepository) AddDelivery(order models.Order) error {
-	tx, err := repo.db.Begin()
-	if err != nil {
-		return err
-	}
-
-	query := "INSERT INTO deliveries (order_uid, name, phone, zip, city," +
+	query = "INSERT INTO deliveries (order_uid, name, phone, zip, city," +
 		"address, region, email) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)"
 
 	_, err = tx.Exec(query, order.OrderUID, order.Delivery.Name, order.Delivery.Phone, order.Delivery.Zip,
@@ -97,20 +68,7 @@ func (repo *OrderRepository) AddDelivery(order models.Order) error {
 		}
 	}
 
-	if err = tx.Commit(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (repo *OrderRepository) AddPayment(order models.Order) error {
-	tx, err := repo.db.Begin()
-	if err != nil {
-		return err
-	}
-
-	query := "INSERT INTO payments (order_uid, request_id, currency, provider," +
+	query = "INSERT INTO payments (order_uid, request_id, currency, provider," +
 		"amount, payment_dt, bank, delivery_cost, goods_total, custom_fee, transaction) " +
 		"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)"
 

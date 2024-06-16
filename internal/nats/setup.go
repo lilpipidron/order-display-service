@@ -30,21 +30,6 @@ func acceptMessage(msg *nats.Msg, orderRepo order.Repository) {
 	if err != nil {
 		log.Errorf("error adding order: %v", err)
 	}
-
-	err = orderRepo.AddItems(order)
-	if err != nil {
-		log.Errorf("error adding order: %v", err)
-	}
-
-	err = orderRepo.AddPayment(order)
-	if err != nil {
-		log.Errorf("error adding order: %v", err)
-	}
-
-	err = orderRepo.AddDelivery(order)
-	if err != nil {
-		log.Errorf("error adding order: %v", err)
-	}
 }
 
 func Setup(cfg *config.Config, orderRepo order.Repository) *nats.Conn {
