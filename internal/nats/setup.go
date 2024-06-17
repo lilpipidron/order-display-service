@@ -43,11 +43,6 @@ func acceptMessage(msg *nats.Msg, orderRepo order.Repository, redisRepo redis.Re
 			log.Errorf("error adding order to Redis: %v", err)
 		}
 	}()
-
-	err = msg.Ack()
-	if err != nil {
-		log.Errorf("error acknowledging message: %v", err)
-	}
 }
 
 func Setup(cfg *config.Config, orderRepo order.Repository, redisRepo redis.Repository) *nats.Conn {
