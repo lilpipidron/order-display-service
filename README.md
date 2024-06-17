@@ -37,3 +37,27 @@ Status Codes:
   - 200: 6000
 
 Error Set:
+```
+## Test Results By WRK
+
+```yaml
+Threads: 12
+Connections: 400
+
+Thread Stats:
+  - Avg Latency: 30.73ms
+  - Stdev Latency: 7.23ms
+  - Max Latency: 247.04ms
+  - +/- Stdev Latency: 79.68%
+  - Avg Req/Sec: 1.08k
+  - Stdev Req/Sec: 169.64
+  - Max Req/Sec: 1.97k
+  - +/- Stdev Req/Sec: 68.25%
+
+Total Requests: 387590
+Total Duration: 30.06s
+Total Data Read: 0.91GB
+
+Requests/Sec: 12893.63
+Transfer/Sec: 31.09MB
+```
