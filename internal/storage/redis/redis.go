@@ -38,5 +38,14 @@ func (repo *Storage) AddOrder(order *models.Order) error {
 }
 
 func (repo *Storage) GetOrder(uid string) (*models.Order, error) {
-	return nil, nil
+	var order *models.Order
+	byteOrder, err := repo.client.Get(context.Background(), uid).Bytes()
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(byteOrder, order)
+	if err != nil {
+		return nil, err
+	}
+	return order, nil
 }
