@@ -30,7 +30,7 @@ func (repo *Storage) AddOrder(order *models.Order) error {
 	if err != nil {
 		return err
 	}
-	err = repo.client.LPush(context.Background(), order.OrderUID, jsonOrder).Err()
+	err = repo.client.Set(context.Background(), order.OrderUID, jsonOrder, 0).Err()
 	if err != nil {
 		return err
 	}
@@ -38,7 +38,7 @@ func (repo *Storage) AddOrder(order *models.Order) error {
 }
 
 func (repo *Storage) GetOrder(uid string) (*models.Order, error) {
-	var order *models.Order
+	order := &models.Order{}
 	byteOrder, err := repo.client.Get(context.Background(), uid).Bytes()
 	if err != nil {
 		return nil, err

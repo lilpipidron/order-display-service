@@ -28,7 +28,19 @@ func main() {
 
 	orderRepo := order.NewRepository(storage.DB)
 
-	nc := ns.Setup(cfg, orderRepo)
+	addr := cfg.Redis.Host + ":" + strconv.Itoa(cfg.Redis.Port)
+	opt := redis.Options{
+		Addr:     addr,
+		Password: cfg.Redis.Password,
+		DB:       cfg.Redis.DB,
+		Protocol: cfg.Redis.Protocol,
+	}
+	redisRepo, err := rds.NewRedisRepo(&opt)
+	if err != nil {
+		log.Fatal("failed to get redis repo: ", "err", err)
+	}
+
+	nc := ns.Setup(cfg, orderRepo, redisRepo)
 
 	defer func(nc *nats.Conn) {
 		err := nc.Drain()
@@ -40,18 +52,6 @@ func main() {
 	orders, err := orderRepo.GetOrders()
 	if err != nil {
 		log.Fatal("failed to get orders: ", "err", err)
-	}
-
-	addr := cfg.Redis.Host + ":" + strconv.Itoa(cfg.Redis.Port)
-	opt := redis.Options{
-		Addr:     addr,
-		Password: cfg.Redis.Password,
-		DB:       cfg.Redis.DB,
-		Protocol: cfg.Redis.Protocol,
-	}
-	redisRepo, err := rds.NewRedisRepo(&opt)
-	if err != nil {
-		log.Fatal("failed to get redis repo: ", "err", err)
 	}
 
 	for _, odr := range orders {

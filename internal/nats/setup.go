@@ -8,10 +8,11 @@ import (
 	"github.com/lilpipidron/order-desplay-service/internal/config"
 	"github.com/lilpipidron/order-desplay-service/internal/models"
 	"github.com/lilpipidron/order-desplay-service/internal/storage/postgresql/order"
+	"github.com/lilpipidron/order-desplay-service/internal/storage/redis"
 	"github.com/nats-io/nats.go"
 )
 
-func acceptMessage(msg *nats.Msg, orderRepo order.Repository) {
+func acceptMessage(msg *nats.Msg, orderRepo order.Repository, redisRepo redis.Repository) {
 	dec := json.NewDecoder(bytes.NewReader(msg.Data))
 	dec.DisallowUnknownFields()
 	var order models.Order
@@ -33,9 +34,13 @@ func acceptMessage(msg *nats.Msg, orderRepo order.Repository) {
 	if err != nil {
 		log.Errorf("error adding order: %v", err)
 	}
+	err = redisRepo.AddOrder(&order)
+	if err != nil {
+		log.Errorf("error adding order: %v", err)
+	}
 }
 
-func Setup(cfg *config.Config, orderRepo order.Repository) *nats.Conn {
+func Setup(cfg *config.Config, orderRepo order.Repository, redisRepo redis.Repository) *nats.Conn {
 	natsURL := cfg.NatsStreamingConfig.ClientAddress
 	if natsURL == "" {
 		natsURL = nats.DefaultURL
@@ -49,7 +54,7 @@ func Setup(cfg *config.Config, orderRepo order.Repository) *nats.Conn {
 	log.Info("Connected to NATS Streaming", "url", natsURL)
 
 	_, err = nc.Subscribe("wildberries", func(msg *nats.Msg) {
-		acceptMessage(msg, orderRepo)
+		acceptMessage(msg, orderRepo, redisRepo)
 	})
 
 	if err != nil {

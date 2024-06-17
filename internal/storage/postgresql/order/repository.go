@@ -110,7 +110,7 @@ func (repo *OrderRepository) GetOrders() ([]models.Order, error) {
 	for row.Next() {
 		var uid string
 		o := &models.Order{}
-		err = row.Scan(&o.OrderUID, o.TrackNumber, &o.Entry, &o.Locale, &o.InternalSignature,
+		err = row.Scan(&o.OrderUID, &o.TrackNumber, &o.Entry, &o.Locale, &o.InternalSignature,
 			&o.CustomerID, &o.DeliveryService, &o.Shardkey, &o.SmID, &o.DateCreated, &o.OofShard)
 		if err != nil {
 			return nil, err
@@ -122,7 +122,7 @@ func (repo *OrderRepository) GetOrders() ([]models.Order, error) {
 			return nil, err
 		}
 		deliveryRow.Next()
-		err = row.Scan(&uid, &o.Delivery.Name, &o.Delivery.Phone, &o.Delivery.Zip,
+		err = deliveryRow.Scan(&uid, &o.Delivery.Name, &o.Delivery.Phone, &o.Delivery.Zip,
 			&o.Delivery.City, &o.Delivery.Address, &o.Delivery.Region, &o.Delivery.Email)
 		if err != nil {
 			return nil, err
