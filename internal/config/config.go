@@ -36,6 +36,8 @@ type Redis struct {
 	Host     string
 	Port     int
 	Password string
+	DB       int
+	Protocol int
 }
 
 func retrieveRedisConfig(config *Config) {
@@ -45,8 +47,21 @@ func retrieveRedisConfig(config *Config) {
 	if err != nil {
 		log.Fatal("failed to parse REDIS_PORT: " + err.Error())
 	}
+
 	redis.Port = port
 	redis.Password = os.Getenv("REDIS_PASSWORD")
+	db, err := strconv.Atoi(os.Getenv("REDIS_DB"))
+	if err != nil {
+		log.Fatal("failed to parse REDIS_DB: " + err.Error())
+	}
+
+	redis.DB = db
+	protocol, err := strconv.Atoi(os.Getenv("REDIS_PROTOCOL"))
+	if err != nil {
+		log.Fatal("failed to parse REDIS_PROTOCOL: " + err.Error())
+	}
+
+	redis.Protocol = protocol
 	config.Redis = redis
 }
 

@@ -17,7 +17,7 @@ type Repository interface {
 	GetOrder(uid string) (*models.Order, error)
 }
 
-func NewRedisClient(opt *redis.Options) (*Storage, error) {
+func NewRedisRepo(opt *redis.Options) (*Storage, error) {
 	client := redis.NewClient(opt)
 	if client == nil {
 		return nil, errors.New("redis client is nil")
