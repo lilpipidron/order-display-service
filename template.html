@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Display</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 20px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+<h1>Enter Order ID</h1>
+<form method="get" action="/order">
+    <input type="text" name="orderID" placeholder="Order ID" required>
+    <button type="submit">Submit</button>
+</form>
+{{ if .OrderJSON }}
+<h2>Order Details</h2>
+<pre>{{ .OrderJSON }}</pre>
+{{ end }}
+</body>
+</html>

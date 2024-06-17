@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/charmbracelet/log"
 	"github.com/lilpipidron/order-desplay-service/internal/config"
@@ -10,6 +11,7 @@ import (
 	rds "github.com/lilpipidron/order-desplay-service/internal/storage/redis"
 	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
+	"html/template"
 	"net/http"
 	"strconv"
 )
@@ -64,6 +66,37 @@ func main() {
 	srv := &http.Server{
 		Addr: cfg.HTTPServer.Address,
 	}
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		template.Must(template.ParseFiles("template.html")).Execute(w, nil)
+	})
+
+	http.HandleFunc("/order", func(w http.ResponseWriter, r *http.Request) {
+		tmpl := template.Must(template.ParseFiles("template.html"))
+		orderID := r.FormValue("orderID")
+
+		var orderJSON string
+
+		odr, err := redisRepo.GetOrder(orderID)
+		if err != nil {
+			log.Error("failed to get order: ", "orderID", orderID, "err", err)
+			orderJSON = err.Error()
+		} else {
+			jsonBytes, err := json.MarshalIndent(odr, "", "  ")
+			if err != nil {
+				log.Error("failed to marshal order: ", "orderID", orderID, "err", err)
+				orderJSON = err.Error()
+			} else {
+				orderJSON = string(jsonBytes)
+			}
+		}
+
+		data := map[string]string{
+			"OrderJSON": orderJSON,
+		}
+
+		tmpl.Execute(w, data)
+	})
 
 	if err := srv.ListenAndServe(); err != nil {
 		log.Error("failed to start http server: ", "err", err)
