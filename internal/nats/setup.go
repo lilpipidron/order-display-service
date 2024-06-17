@@ -3,7 +3,6 @@ package nats
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/charmbracelet/log"
 	"github.com/lilpipidron/order-desplay-service/internal/config"
 	"github.com/lilpipidron/order-desplay-service/internal/models"
@@ -21,14 +20,6 @@ func acceptMessage(msg *nats.Msg, orderRepo order.Repository, redisRepo redis.Re
 		log.Printf("error unmarshalling message: %v", err)
 		return
 	}
-
-	prettyJSON, err := json.MarshalIndent(order, "", "    ")
-	if err != nil {
-		log.Printf("error marshalling message to JSON: %v", err)
-		return
-	}
-
-	fmt.Println(string(prettyJSON))
 
 	go func() {
 		err := orderRepo.AddOrder(order)
