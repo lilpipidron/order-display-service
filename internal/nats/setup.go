@@ -30,13 +30,23 @@ func acceptMessage(msg *nats.Msg, orderRepo order.Repository, redisRepo redis.Re
 
 	fmt.Println(string(prettyJSON))
 
-	err = orderRepo.AddOrder(order)
+	go func() {
+		err := orderRepo.AddOrder(order)
+		if err != nil {
+			log.Errorf("error adding order: %v", err)
+		}
+	}()
+
+	go func() {
+		err := redisRepo.AddOrder(&order)
+		if err != nil {
+			log.Errorf("error adding order to Redis: %v", err)
+		}
+	}()
+
+	err = msg.Ack()
 	if err != nil {
-		log.Errorf("error adding order: %v", err)
-	}
-	err = redisRepo.AddOrder(&order)
-	if err != nil {
-		log.Errorf("error adding order: %v", err)
+		log.Errorf("error acknowledging message: %v", err)
 	}
 }
 
